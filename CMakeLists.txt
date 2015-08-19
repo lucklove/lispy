@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
-PROJECT(lisp)
+PROJECT(lispy)
 
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 SET(CMAKE_CXX_COMPILER g++)
@@ -8,9 +8,21 @@ ADD_COMPILE_OPTIONS("-Wall")
 
 SET(LISP_SRCS
 	main.cc
+	lexical.cc
+	eval.cc
+	symbol_table.cc
+	parser.cc
+	buildin.cc
+	lambda.cc
+	val.cc
 )
 
-ADD_LIBRARY(lisp ${SHTTPD_SRCS})
+SET(LEXICAL_MAP_SRCS
+	lexical_map_gen.cc
+)
+
+ADD_EXECUTABLE(lispy ${LISP_SRCS})
+ADD_EXECUTABLE(lexical_map ${LEXICAL_MAP_SRCS})
 
 ADD_CUSTOM_TARGET(debug
 	COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}

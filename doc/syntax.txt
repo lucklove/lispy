@@ -1,0 +1,34 @@
+lispy:
+	<exprs>
+
+exprs:
+	void
+	<expr> <exprs>
+
+expr:
+	<number>
+	<symbol>
+	<string>
+	<comment>
+	<sexpr>
+	<qexpr>
+
+sexpr:
+	( <exprs> )
+
+qexpr:
+	{ <exprs> }
+
+number:
+	INT
+	FLOAT
+
+number  : /-?[0-9]+/ ;                       
+symbol  : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ; 
+string  : /\"(\\\\.|[^\"])*\"/ ;            
+comment : /;[^\\r\\n]*/ ;                   
+sexpr   : '(' <expr>* ')' ;                 
+qexpr   : '{' <expr>* '}' ;                 
+expr    : <number>  | <symbol> | <string>   
+        | <comment> | <sexpr>  | <qexpr>;   
+lispy   : /^/ <expr>* /$/ ;                 
