@@ -11,7 +11,7 @@ struct ast_t {
 	ast_tag tag;
 	std::string value;
 	std::vector<ast_t> children;
-	std::string to_string() {
+	std::string to_string() const {
 		switch(tag) {
 			case ast_tag::EXPR:
 				return children[0].to_string();

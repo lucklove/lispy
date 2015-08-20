@@ -31,6 +31,7 @@ private:
 			cur_state = next_state;
 		} else {
 			reaction_map[cur_state]();
+			prev_ = std::move(token_);
 			token_.clear();
 			cur_state = 1;
 			return feed(c);
@@ -40,11 +41,13 @@ private:
 
 	void error(const std::string& msg) {
 		std::cout << msg << std::endl;
+		std::cout << "prev token: " << prev_ << std::endl;
 		message_bus_.send("stop");
 	}
 
 	MessageBus& message_bus_;
 	std::string token_;
+	std::string prev_;
 	state_t cur_state = 1;
 	bool stoped_ = false;
 	static state_t dfa_trans_table[][128];

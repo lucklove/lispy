@@ -22,7 +22,7 @@ bg=blue</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-
-A-Za-z+-*/\=&lt;&gt;!&amp;</panel_attributes>
+A-Za-z_+-*/\=&lt;&gt;!&amp;</panel_attributes>
     <additional_attributes>180.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
@@ -90,11 +90,11 @@ bg=blue</panel_attributes>
     <coordinates>
       <x>320</x>
       <y>310</y>
-      <w>330</w>
+      <w>340</w>
       <h>140</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-
-A-Za-z+-*/\=&lt;&gt;!&amp;</panel_attributes>
+A-Za-z_+-*/\=&lt;&gt;!&amp;</panel_attributes>
     <additional_attributes>180.0;10.0;180.0;120.0;10.0;120.0</additional_attributes>
   </element>
   <element>
@@ -138,11 +138,11 @@ bg=blue</panel_attributes>
     <coordinates>
       <x>320</x>
       <y>320</y>
-      <w>350</w>
+      <w>360</w>
       <h>230</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-
-A-Za-z+-*/\=&lt;&gt;!&amp;</panel_attributes>
+A-Za-z_+-*/\=&lt;&gt;!&amp;</panel_attributes>
     <additional_attributes>200.0;10.0;200.0;210.0;10.0;210.0</additional_attributes>
   </element>
   <element>
