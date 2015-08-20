@@ -15,3 +15,4 @@
 #include "parser.hh"
 #include "syntax.hh"
 #include "token.hh"
+#include "unique_id.hh"

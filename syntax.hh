@@ -50,6 +50,13 @@ private:
 				std::cout << to_string(eval(t)) << std::endl;
 		} catch(Error& se) {
 			std::cout << se.what() << std::endl;
+			std::cout << "before:" << std::endl;
+			size_t count = 30;
+			while(!que.empty() && count--) {
+				std::cout << que.front().second << " ";
+				que.pop();
+			}
+			std::cout << std::endl;
 		}
 	}
 

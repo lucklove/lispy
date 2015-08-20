@@ -1,7 +1,34 @@
-(set {defun} (lambda {func param_list body} {set func (lambda param_list body)}))
-(defun {not} {condition} {if condition () "T"})
-(defun {empty} {lis} {not (first lis)})
-(defun {seq} {seqs} {if (empty (rest seqs)) {eval (first seqs)} {let {} {eval (first seqs)} {self (rest seqs)}}})
-;(defun {loop} {condition body} {let {(ret ())} {if condition {seq {{as ret (eval body)} {self condition body}}} ret}})
+(set {not} (lambda {condition} {if condition () "true"}))
+(set {empty} (lambda {lis} {not (first lis)}))
 
-;(loop 0 {println "hello"})
+(set {seq} ((lambda {m}
+			{(lambda {f} {f f})
+				(lambda {j}
+					{m (lambda {x} {(j j) x})})})
+		(lambda {f}
+			{lambda {seqs}
+				{
+					if (empty (rest seqs)) 
+						{eval (first seqs)}
+						{let {} 
+							{eval (first seqs)}
+							{f (rest seqs)}
+						}
+				}}))
+		)
+
+(set {loop} ((lambda {m}
+			{(lambda {f} {f f})
+				(lambda {j}
+					{m (lambda {x y} {(j j) x y})})})
+		(lambda {f}
+			{
+				lambda {condition body} {
+					if (eval condition)
+					{seq {{eval body} {f condition body}}}
+				}
+			}))
+		)
+
+(set {and} (lambda {cond1 cond2} {if cond1 {if cond2 "T"}}))
+(set {or} (lambda {cond1 cond2} {not (and (not cond1) (not cond2))}))

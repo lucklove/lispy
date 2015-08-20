@@ -3,6 +3,7 @@
 
 std::string to_string(const ValPtr& ptr)
 {
+	if(ptr == nullptr) return "nullptr";
 	if(ptr->type() == typeid(nil_t)) {
 		return "nil";
 	} else if(ptr->type() == typeid(int)) {
