@@ -25,8 +25,8 @@ int main()
 		lmap[From][index_of(Case)] = To;	\
 	} while(0)
 
-	std::string alpha_symbol("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+-*/\\=<>!&");
-	std::string alpha_number_symbol("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-*/\\=<>!&");
+	std::string alpha_symbol("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_+-*/\\=<>!&");
+	std::string alpha_number_symbol("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_+-*/\\=<>!&");
 	std::string number("0123456789");
 
 	for(char c : alpha_symbol) {

@@ -21,6 +21,7 @@ ValPtr eval_id(const ast_t& tree)
 
 ValPtr eval_exprs(const ast_t& tree)
 {
+	assert(tree.tag == ast_tag::EXPRS);
 	if(tree.children.size() == 0)
 		return std::make_shared<Val>(nil_t{});
 
@@ -34,8 +35,7 @@ ValPtr eval_exprs(const ast_t& tree)
 	} else if(func->type() == typeid(Lambda)) {
 		return boost::get<Lambda>(*func).apply(func, params);
 	} else {
-		std::cout << "unexpected " << to_string(func) << std::endl;
-		throw Error("EVAL: expect a function name");
+		throw Error("EVAL: expect a function name, meet " + to_string(func));
 	}
 }
 

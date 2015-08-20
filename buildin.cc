@@ -57,8 +57,11 @@ ValPtr buildin_let(const std::vector<ValPtr>& params)
 		Parser::symbol_table.add(t.children[0].children[0].children[0].children[0].value, 
 			eval(t.children[0].children[0].children[1]));
 	}
-	for(size_t i = 1; i < params.size(); ++i)
-		eval(boost::get<ast_t>(*params[i]), true);
+	for(size_t i = 1; i < params.size(); ++i) {
+		ValPtr ret = eval(boost::get<ast_t>(*params[i]), true);
+		if(i == params.size() - 1)
+			return ret;
+	}
 	return std::make_shared<Val>(nil_t{});
 }
 
@@ -308,15 +311,12 @@ ValPtr buildin_if(const std::vector<ValPtr>& params)
 	}
 }
 
-ValPtr buildin_not(const std::vector<ValPtr>& params)
+ValPtr buildin_assign(const std::vector<ValPtr>& params)
 {
-	if(params.size() != 1)
-		throw Error("not: need exactly one param");
-	if(params[0]->type() == typeid(nil_t)) {
-		return std::make_shared<Val>("T");
-	} else {
-		return std::make_shared<Val>(nil_t{});
-	}
+	if(params.size() != 2)
+		throw Error("assign: need exactly 2 params");
+	*params[0] = *params[1];
+	return params[0];
 }
 }
 
@@ -339,5 +339,5 @@ std::unordered_map<std::string, Buildin::operator_t> Buildin::buildin_table =
 	{ "first", buildin_first },
 	{ "rest", buildin_rest },
 	{ "if", buildin_if },
-	{ "not", buildin_not }
+	{ "as", buildin_assign }
 };
