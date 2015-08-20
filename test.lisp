@@ -22,3 +22,5 @@
 (if (or "T" ()) {println "or test2 passed"} {println "or test2 failed"})
 (if (or () "T") {println "or test3 passed"} {println "or test3 failed"})
 (if (or "T" "T") {println "or test4 passed"} {println "or test4 failed"})
+
+(let {(x 100)} {loop {not (eq x 0)} {seq {{println x} {as x (- x 1)}}}})

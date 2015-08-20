@@ -379,6 +379,44 @@ ValPtr buildin_assign(const std::vector<ValPtr>& params)
 	*params[0] = *params[1];
 	return params[0];
 }
+
+ValPtr buildin_append(const std::vector<ValPtr>& params)
+{
+	if(params.size() != 2) 
+		throw Error("append: need exactly two params");
+	if(params[0]->type() != typeid(ast_t))
+		throw Error("append: useage: append {list} val");
+	ast_t& t = boost::get<ast_t>(*params[0]);
+	if(params[1]->type() == typeid(int)) {
+		t.children[0].children.push_back(ast_t{ast_tag::INT});
+		t.children[0].children.back().value = std::to_string(boost::get<int>(*params[1]));
+	} else if(params[1]->type() == typeid(float)) {
+		t.children[0].children.push_back(ast_t{ast_tag::FLOAT});
+		t.children[0].children.back().value = std::to_string(boost::get<float>(*params[1]));
+	} else if(params[1]->type() == typeid(std::string)) {
+		t.children[0].children.push_back(ast_t{ast_tag::STRING});
+		t.children[0].children.back().value = "\"" + boost::get<std::string>(*params[1]) + "\"";
+	} else if(params[1]->type() == typeid(ast_t)) {
+		t.children[0].children.push_back(boost::get<ast_t>(*params[1]));
+	} else {
+	 	throw Error("list: " + to_string(params[1]) + " has no value");
+	}
+	return std::make_shared<Val>(t);
+}
+
+ValPtr buildin_type(const std::type_index& type, const std::vector<ValPtr>& params)
+{
+	if(params.size() != 1)
+		throw Error("type detector need exactly one param");
+	if(type == params[0]->type())
+		return std::make_shared<Val>("T");
+	return std::make_shared<Val>(nil_t{});
+}
+
+ValPtr buildin_exit(const std::vector<ValPtr>&)
+{
+	exit(0);
+}
 }
 
 std::unordered_map<std::string, Buildin::operator_t> Buildin::buildin_table = 
@@ -400,5 +438,14 @@ std::unordered_map<std::string, Buildin::operator_t> Buildin::buildin_table =
 	{ "first", buildin_first },
 	{ "rest", buildin_rest },
 	{ "if", buildin_if },
-	{ "as", buildin_assign }
+	{ "as", buildin_assign },
+	{ "append", buildin_append },
+	{ "is_nil", std::bind(buildin_type, std::ref(typeid(nil_t)), std::placeholders::_1)},
+	{ "is_int", std::bind(buildin_type, std::ref(typeid(int)), std::placeholders::_1)},
+	{ "is_float", std::bind(buildin_type, std::ref(typeid(float)), std::placeholders::_1)},
+	{ "is_string", std::bind(buildin_type, std::ref(typeid(std::string)), std::placeholders::_1)},
+	{ "is_list", std::bind(buildin_type, std::ref(typeid(ast_t)), std::placeholders::_1)},
+	{ "is_lambda", std::bind(buildin_type, std::ref(typeid(Lambda)), std::placeholders::_1)},
+	{ "is_buildin", std::bind(buildin_type, std::ref(typeid(Buildin)), std::placeholders::_1)},
+	{ "exit", buildin_exit }
 };
