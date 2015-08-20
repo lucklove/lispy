@@ -53,6 +53,20 @@ public:
 	void add_global(const std::string& name, ValPtr val) {
 		root_->table[name] = val;
 	}
+	bool is_top() {
+		return root_ == point_;
+	}
+	/** DEBUG */
+	void dump() {
+		symbol_node *node = point_;
+		std::cout << "============symbol table===========" << std::endl;
+		while(node) {
+			std::cout << "------------------------------" << std::endl;
+			for(auto&& it : node->table)
+				std::cout << it.first << std::endl;
+			node = node->prev;
+		}
+	}
 private:
 	symbol_node *root_;
 	symbol_node *point_;

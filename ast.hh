@@ -10,6 +10,7 @@ struct ast_t {
 	ast_t(ast_tag t) : tag(t) {}
 	ast_tag tag;
 	std::string value;
+	std::string alias;
 	std::vector<ast_t> children;
 	std::string to_string() const {
 		switch(tag) {

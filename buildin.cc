@@ -4,6 +4,45 @@
 
 namespace {
 
+template <typename T, typename C, typename F>
+bool is_in(T&& item, C&& container, F&& f)
+{
+	for(auto&& it : container) {
+		if(f(it, item))
+			return true;
+	}
+	return false;
+}
+
+void add_alias(const std::string& prefix, ast_t& ast)
+{
+	if(ast.tag == ast_tag::ID)
+		ast.alias = prefix + ast.value;
+	for(ast_t& c : ast.children)
+		add_alias(prefix, c);
+}
+
+void add_alias(const std::string& prefix, std::vector<std::pair<std::string, ValPtr>>& pair_list)
+{
+	for(std::pair<std::string, ValPtr>& p : pair_list)
+		p.first = prefix + p.first;
+}
+
+void add_alias(const std::string& prefix, std::vector<std::string>& param_list)
+{
+	for(std::string& s : param_list)
+		s = prefix + s;
+}
+
+template <typename F>
+void add_alias(const std::string& prefix, ast_t& ast, F&& f)
+{
+	if(f(ast))
+		ast.alias = prefix + ast.value;
+	for(ast_t& t : ast.children)
+		add_alias(prefix, t, f);
+}
+
 /** print */
 ValPtr buildin_print(const std::vector<ValPtr>& params) {
 	for(const ValPtr& v : params) {
@@ -23,6 +62,8 @@ ValPtr buildin_println(const std::vector<ValPtr>& params)
 /** set */
 ValPtr buildin_set(const std::vector<ValPtr>& params)
 {
+	if(!Parser::symbol_table.is_top())
+		throw Error("set: set can only be used at top level");
 	if(params.size() != 2) 
 		throw Error("set: useage: set {ID} value");
 	if(params[0]->type() != typeid(ast_t))
@@ -46,23 +87,37 @@ ValPtr buildin_let(const std::vector<ValPtr>& params)
 		if(ptr->type() != typeid(ast_t))
 			throw Error("let: useage: let {(ID1 v1)(ID2 v2)} { body }...");		
 	}
-	SymbolLayer layer;
 						/*QEXPR*/  /*EXPRS*/   /*EXPR*/
+	std::vector<std::pair<std::string, ValPtr>> list;
 	for(const ast_t& t : boost::get<ast_t>(*params[0]).children[0].children) {
 		     /*SEXPR*/    /*EXPRS*/     	  /*SEXPR*/     /*EXPRS*/   /*EXPR*/                            
 		if(t.children[0].children.size() == 0 || t.children[0].children[0].children.size() != 2)
 			throw Error("let: useage: let {(ID1 v1)(ID2 v2)...} { body }...");
 		if(t.children[0].children[0].children[0].children[0].tag != ast_tag::ID)		
 			throw Error("let: useage: let {(ID1 v1)(ID2 v2)...} { body }...");
-		Parser::symbol_table.add(t.children[0].children[0].children[0].children[0].value, 
-			eval(t.children[0].children[0].children[1]));
+		list.push_back(std::make_pair(t.children[0].children[0].children[0].children[0].value,
+			eval(t.children[0].children[0].children[1])));
 	}
+
+	std::vector<ast_t> ast_list;
+	std::string prefix = "~" + gen_unique_id() + "~";
 	for(size_t i = 1; i < params.size(); ++i) {
-		ValPtr ret = eval(boost::get<ast_t>(*params[i]), true);
-		if(i == params.size() - 1)
-			return ret;
+		ast_t ast = boost::get<ast_t>(*params[i]);
+		add_alias(prefix, ast, [&](const ast_t& a) -> bool {
+			return a.tag == ast_tag::ID && is_in(a.value, list, [](auto p, auto s) {
+				return s == p.first;
+			});
+		});
+		ast_list.push_back(ast);
 	}
-	return std::make_shared<Val>(nil_t{});
+	add_alias(prefix, list);
+	SymbolLayer layer;
+	for(const std::pair<std::string, ValPtr>& p : list)
+		Parser::symbol_table.add(p.first, p.second);
+	ValPtr ret = std::make_shared<Val>(nil_t{});
+	for(ast_t& t : ast_list) 
+		ret = eval(t, true);
+	return ret;
 }
 
 void fill_param_list(std::vector<std::string>& param_list, const ast_t& ast)
@@ -78,15 +133,6 @@ void fill_param_list(std::vector<std::string>& param_list, const ast_t& ast)
 	}
 }
 
-bool is_param(const std::string& name, const std::vector<std::string>& param_list)
-{
-	for(const std::string& s : param_list) {
-		if(name == s)
-			return true;
-	}
-	return false;
-}
-
 void fill_capture_list(const std::vector<std::string>& param_list, 
 	std::vector<std::pair<std::string, ValPtr>>& capture_list, const ast_t& ast)
 {
@@ -94,8 +140,17 @@ void fill_capture_list(const std::vector<std::string>& param_list,
 		for(const ast_t& t : ast.children)
 			fill_capture_list(param_list, capture_list, t);
 	} else if(ast.tag == ast_tag::ID) {
-		ValPtr val = Parser::symbol_table.look(ast.value);
-		if(ast.value != "self" && !Buildin(ast.value) && !is_param(ast.value, param_list)) {
+		ValPtr val = nullptr;
+		if(ast.alias != "") {
+			val = Parser::symbol_table.look(ast.alias);
+		} else {
+			val = Parser::symbol_table.look(ast.value);
+		}
+		if(!Buildin(ast.value) && !is_in(ast.value, param_list, 
+			[](auto x, auto y) {
+				return x == y;
+			}
+		)) {
 			if(val != nullptr)
 				capture_list.push_back(std::make_pair(ast.value, val));
 		}
@@ -113,7 +168,12 @@ ValPtr buildin_lambda(const std::vector<ValPtr>& params)
 		throw Error("lambda: useage: lambda {param list} {body}");
 	fill_param_list(param_list, boost::get<ast_t>(*params[0]));
 	fill_capture_list(param_list, capture_list, boost::get<ast_t>(*params[1]));
-	return std::make_shared<Val>(Lambda{param_list, capture_list, boost::get<ast_t>(*params[1])});
+	ast_t ast = boost::get<ast_t>(*params[1]);
+	std::string prefix = "~" + gen_unique_id() + "~";
+	add_alias(prefix, param_list);
+	add_alias(prefix, capture_list);
+	add_alias(prefix, ast);
+	return std::make_shared<Val>(Lambda{param_list, capture_list, ast});
 }
 
 ValPtr buildin_eq(const std::vector<ValPtr>& params)
@@ -229,6 +289,7 @@ ValPtr buildin_op(char op, const std::vector<ValPtr>& params)
 			if(v->type() == typeid(float)) {
 				float_flag = true;
 			} else {
+std::cout << "is " << to_string(v) << std::endl;
 				throw Error("op: all params should be number");
 			}
 		}

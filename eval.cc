@@ -13,10 +13,16 @@ ValPtr eval_id(const ast_t& tree)
 	Buildin build_in{tree.value};
 	if(build_in)
 		return std::make_shared<Val>(build_in);
-	ValPtr val = Parser::symbol_table.look(tree.value);
+	ValPtr val = nullptr;
+	if(tree.alias != "") {
+		val = Parser::symbol_table.look(tree.alias);
+	} else {
+		val = Parser::symbol_table.look(tree.value);
+	}
 	if(val)
 		return val;
-	throw Error("EVAL: " + tree.value + " is undefined");
+	Parser::symbol_table.dump();
+	throw Error("EVAL: " + tree.value + "(alias " + tree.alias + ") is undefined");
 }
 
 ValPtr eval_exprs(const ast_t& tree)
@@ -33,7 +39,7 @@ ValPtr eval_exprs(const ast_t& tree)
 	if(func->type() == typeid(Buildin)) {
 		return boost::get<Buildin>(*func).apply(params);
 	} else if(func->type() == typeid(Lambda)) {
-		return boost::get<Lambda>(*func).apply(func, params);
+		return boost::get<Lambda>(*func).apply(params);
 	} else {
 		throw Error("EVAL: expect a function name, meet " + to_string(func));
 	}
@@ -105,24 +111,29 @@ ValPtr eval(const ast_t& tree, bool qexpr_as_sexpr)
 	}
 	return nullptr;
 */
-	switch(tree.tag) {
-		case ast_tag::INT:
-			return std::make_shared<Val>(boost::lexical_cast<int>(tree.value));
-		case ast_tag::FLOAT:
-			return std::make_shared<Val>(boost::lexical_cast<float>(tree.value));
-		case ast_tag::ID:
-			return eval_id(tree);
-		case ast_tag::STRING:
-			return std::make_shared<Val>(std::string{tree.value.begin() + 1, tree.value.end() - 1});
-		case ast_tag::SEXPR:
-			return eval_sexpr(tree);
-		case ast_tag::QEXPR:
-			if(qexpr_as_sexpr) return eval_sexpr(tree);
-			return eval_qexpr(tree);
-		case ast_tag::EXPR:
-			return eval_expr(tree); 
-		case ast_tag::EXPRS:
-			return eval_exprs(tree);
+	try {
+		switch(tree.tag) {
+			case ast_tag::INT:
+				return std::make_shared<Val>(boost::lexical_cast<int>(tree.value));
+			case ast_tag::FLOAT:
+				return std::make_shared<Val>(boost::lexical_cast<float>(tree.value));
+			case ast_tag::ID:
+				return eval_id(tree);
+			case ast_tag::STRING:
+				return std::make_shared<Val>(std::string{tree.value.begin() + 1, tree.value.end() - 1});
+			case ast_tag::SEXPR:
+				return eval_sexpr(tree);
+			case ast_tag::QEXPR:
+				if(qexpr_as_sexpr) return eval_sexpr(tree);
+				return eval_qexpr(tree);
+			case ast_tag::EXPR:
+				return eval_expr(tree); 
+			case ast_tag::EXPRS:
+				return eval_exprs(tree);
+		}
+	} catch(Error& se) {
+		std::cout << se.what() << std::endl;
+		std::cout << tree.to_string() << std::endl;
 	}
-	assert(false);
+	return nullptr;
 }
