@@ -15,7 +15,9 @@ std::string to_string(const ValPtr& ptr)
 	} else if(ptr->type() == typeid(ast_t)) {
 		return boost::get<ast_t>(*ptr).to_string();
 	} else if(ptr->type() == typeid(Lambda)) {
-		return "lambda@" + to_string(ptr);
+		std::stringstream ss;
+		ss << ptr;
+		return "lambda@" + ss.str();
 	} else if(ptr->type() == typeid(Buildin)) {
 		std::stringstream ss;
 		ss << reinterpret_cast<void *>(boost::get<Buildin>(*ptr).addr());
