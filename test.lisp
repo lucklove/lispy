@@ -1,4 +1,4 @@
-(load "../core.lisp")
+(load "core.lisp")
 
 ((lambda {y} {((lambda {y} {lambda {x} {* y 2}}) 3) 0}) 4)
 
@@ -23,4 +23,5 @@
 (if (or () "T") {println "or test3 passed"} {println "or test3 failed"})
 (if (or "T" "T") {println "or test4 passed"} {println "or test4 failed"})
 
-(let {(x 100)} {loop {not (eq x 0)} {seq {{println x} {as x (- x 1)}}}})
+(let {(x 100)} {loop {not (= x 0)} {seq {{println x} {as x (- x 1)}}}})
+(join {1 2 3 4 5} {6 7 8 9 10})

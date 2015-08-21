@@ -176,52 +176,50 @@ ValPtr buildin_lambda(const std::vector<ValPtr>& params)
 	return std::make_shared<Val>(Lambda{param_list, capture_list, ast});
 }
 
-ValPtr buildin_eq(const std::vector<ValPtr>& params)
+ValPtr buildin_lt(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 2) 
-		throw Error("eq: useage: = value value");
-	if(params[0]->type() == typeid(nil_t) && params[1]->type() == typeid(nil_t))
-		return std::make_shared<Val>("T");
+		throw Error("lt: useage: = value value");
 	if(params[0]->type() == typeid(int)) {
 		int pv0 = boost::get<int>(*params[0]);
 		if(params[1]->type() == typeid(int)) {
-			if(pv0 == boost::get<int>(*params[1])) {
+			if(pv0 < boost::get<int>(*params[1])) {
 				return std::make_shared<Val>("T");
 			} else {
 				return std::make_shared<Val>(nil_t{});
 			}
 		} else if(params[1]->type() == typeid(float)) {
-			if(pv0 == boost::get<float>(*params[1])) {
+			if(pv0 < boost::get<float>(*params[1])) {
 				return std::make_shared<Val>("T");
 			} else {
 				return std::make_shared<Val>(nil_t{});
 			}
 		} else {
-			throw Error("eq: the first param is a number but the second isn't");
+			throw Error("lt: the first param is a number but the second isn't");
 		}
 	} else if(params[0]->type() == typeid(float)) {
 		float pv0 = boost::get<float>(*params[0]);
 		if(params[1]->type() == typeid(int)) {
-			if(pv0 == boost::get<int>(*params[1])) {
+			if(pv0 < boost::get<int>(*params[1])) {
 				return std::make_shared<Val>("T");
 			} else {
 				return std::make_shared<Val>(nil_t{});
 			}
 		} else if(params[1]->type() == typeid(float)) {
-			if(pv0 == boost::get<float>(*params[1])) {
+			if(pv0 < boost::get<float>(*params[1])) {
 				return std::make_shared<Val>("T");
 			} else {
 				return std::make_shared<Val>(nil_t{});
 			}
 		} else {
-			throw Error("eq: the first param is a number but the second isn't");
+			throw Error("lt: the first param is a number but the second isn't");
 		}
 	} else if(params[0]->type() == typeid(std::string) && params[1]->type() == typeid(std::string)) {
-		if(boost::get<std::string>(*params[0]) == boost::get<std::string>(*params[1]))
+		if(boost::get<std::string>(*params[0]) < boost::get<std::string>(*params[1]))
 			return std::make_shared<Val>("T");
 		return std::make_shared<Val>(nil_t{});
 	}
-	throw Error("eq: can't compare such two items");
+	throw Error("lt: can't compare such two items");
 }
 
 ValPtr buildin_eval(const std::vector<ValPtr>& params)
@@ -386,7 +384,7 @@ ValPtr buildin_append(const std::vector<ValPtr>& params)
 		throw Error("append: need exactly two params");
 	if(params[0]->type() != typeid(ast_t))
 		throw Error("append: useage: append {list} val");
-	ast_t& t = boost::get<ast_t>(*params[0]);
+	ast_t t = boost::get<ast_t>(*params[0]);
 	if(params[1]->type() == typeid(int)) {
 		t.children[0].children.push_back(ast_t{ast_tag::INT});
 		t.children[0].children.back().value = std::to_string(boost::get<int>(*params[1]));
@@ -426,8 +424,7 @@ std::unordered_map<std::string, Buildin::operator_t> Buildin::buildin_table =
 	{ "set", buildin_set },
 	{ "let", buildin_let },
 	{ "lambda", buildin_lambda },
-	{ "eq", buildin_eq },
-	{ "=", buildin_eq },
+	{ "<", buildin_lt },
 	{ "eval", buildin_eval },
 	{ "load", buildin_load },
 	{ "+", std::bind(buildin_op, '+', std::placeholders::_1) },
