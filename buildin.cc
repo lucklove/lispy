@@ -328,7 +328,7 @@ ValPtr buildin_first(const std::vector<ValPtr>& params)
 	if(params.size() != 1)
 		throw Error("first: need exactly one param");
 	if(params[0]->type() != typeid(ast_t))
-		throw Error("first: need qexpr");
+		throw Error("first: need list");
 	const ast_t& t = boost::get<ast_t>(*params[0]);
 	if(t.children[0].children.size() == 0)
 		return std::make_shared<Val>(nil_t{});
@@ -444,5 +444,6 @@ std::unordered_map<std::string, Buildin::operator_t> Buildin::buildin_table =
 	{ "is_list", std::bind(buildin_type, std::ref(typeid(ast_t)), std::placeholders::_1)},
 	{ "is_lambda", std::bind(buildin_type, std::ref(typeid(Lambda)), std::placeholders::_1)},
 	{ "is_buildin", std::bind(buildin_type, std::ref(typeid(Buildin)), std::placeholders::_1)},
-	{ "exit", buildin_exit }
+	{ "exit", buildin_exit },
+	{ "native", buildin_native }
 };

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+
 using namespace std;
 #define STATE_NUM 14
 #define CASE_NUM 128

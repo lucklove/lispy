@@ -135,5 +135,5 @@ ValPtr eval(const ast_t& tree, bool qexpr_as_sexpr)
 		std::cout << se.what() << std::endl;
 		std::cout << tree.to_string() << std::endl;
 	}
-	return nullptr;
+	return std::make_shared<Val>(nil_t{});
 }
