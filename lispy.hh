@@ -16,3 +16,4 @@
 #include "syntax.hh"
 #include "token.hh"
 #include "unique_id.hh"
+#include "native.hh"

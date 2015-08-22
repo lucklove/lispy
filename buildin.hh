@@ -14,17 +14,33 @@ public:
 	Buildin(const std::string& name) {
 		auto op = buildin_table.find(name);
 		if(op != buildin_table.end())
-			oper = &op->second;
+			oper_ptr = &op->second;
 	}
+
+	Buildin(operator_t o) : oper(o) {}
+
 	operator bool() {
-		return oper != nullptr;
+		return oper || oper_ptr;
 	}
+
 	ValPtr apply(const std::vector<ValPtr>& params) {
-		return (*oper)(params);
+		if(oper) {
+			return oper(params);
+		} else if(oper_ptr) {
+			return (*oper_ptr)(params);
+		}
+		assert(false && "invalid buildin");
 	}
+
 	operator_ptr addr() {
-		return oper;
+		if(oper) {
+			return &oper;
+		} else if(oper_ptr) {
+			return oper_ptr;
+		}
+		assert(false && "invalid buildin");
 	}
 private:
-	operator_ptr oper = nullptr;
+	operator_t oper{};
+	operator_ptr oper_ptr = nullptr;
 };	
