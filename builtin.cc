@@ -66,9 +66,9 @@ ValPtr builtin_set(const std::vector<ValPtr>& params)
 		throw Error("set: set can only be used at top level");
 	if(params.size() != 2) 
 		throw Error("set: usage: set {ID} value");
-	if(params[0]->type() != typeid(ast_t))
+	if(!params[0]->Is<ast_t>())
 		throw Error("set: usage: set {ID} value");
-	const ast_t& ast = boost::get<ast_t>(*params[0]);		/**< QEXPR */
+	const ast_t& ast = params[0]->Get<ast_t>();			/**< QEXPR */
 	if(ast.children[0].children.size() != 1)			/**< EXPRS可能没有children */
 		throw Error("set: usage: set {ID} value");
 	const ast_t& id = ast.children[0].children[0].children[0];	/**< 不用判断是否有children, 因为EXPR一定有 */
@@ -84,12 +84,12 @@ ValPtr builtin_let(const std::vector<ValPtr>& params)
 	if(params.size() == 0)
 		throw Error("let need at least one param");
 	for(const ValPtr& ptr : params) {
-		if(ptr->type() != typeid(ast_t))
+		if(!ptr->Is<ast_t>())
 			throw Error("let: usage: let {(ID1 v1)(ID2 v2)} { body }...");		
 	}
 						/*QEXPR*/  /*EXPRS*/   /*EXPR*/
 	std::vector<std::pair<std::string, ValPtr>> list;
-	for(const ast_t& t : boost::get<ast_t>(*params[0]).children[0].children) {
+	for(const ast_t& t : params[0]->Get<ast_t>().children[0].children) {
 		     /*SEXPR*/    /*EXPRS*/     	  /*SEXPR*/     /*EXPRS*/   /*EXPR*/                            
 		if(t.children[0].children.size() == 0 || t.children[0].children[0].children.size() != 2)
 			throw Error("let: usage: let {(ID1 v1)(ID2 v2)...} { body }...");
@@ -102,7 +102,7 @@ ValPtr builtin_let(const std::vector<ValPtr>& params)
 	std::vector<ast_t> ast_list;
 	std::string prefix = "~" + gen_unique_id() + "~";
 	for(size_t i = 1; i < params.size(); ++i) {
-		ast_t ast = boost::get<ast_t>(*params[i]);
+		ast_t ast = params[i]->Get<ast_t>();
 		add_alias(prefix, ast, [&](const ast_t& a) -> bool {
 			return a.tag == ast_tag::ID && is_in(a.value, list, [](auto p, auto s) {
 				return s == p.first;
@@ -164,11 +164,11 @@ ValPtr builtin_lambda(const std::vector<ValPtr>& params)
 		throw Error("lambda: expect two params");
 	std::vector<std::string> param_list;
 	std::vector<std::pair<std::string, ValPtr>> capture_list;
-	if(params[0]->type() != typeid(ast_t) || params[1]->type() != typeid(ast_t))	
+	if(!params[0]->Is<ast_t>() || !params[1]->Is<ast_t>())	
 		throw Error("lambda: usage: lambda {param list} {body}");
-	fill_param_list(param_list, boost::get<ast_t>(*params[0]));
-	fill_capture_list(param_list, capture_list, boost::get<ast_t>(*params[1]));
-	ast_t ast = boost::get<ast_t>(*params[1]);
+	fill_param_list(param_list, params[0]->Get<ast_t>());
+	fill_capture_list(param_list, capture_list, params[1]->Get<ast_t>());
+	ast_t ast = params[1]->Get<ast_t>();
 	std::string prefix = "~" + gen_unique_id() + "~";
 	add_alias(prefix, param_list);
 	add_alias(prefix, capture_list);
@@ -180,43 +180,43 @@ ValPtr builtin_lt(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 2) 
 		throw Error("lt: usage: = value value");
-	if(params[0]->type() == typeid(int)) {
-		int pv0 = boost::get<int>(*params[0]);
-		if(params[1]->type() == typeid(int)) {
-			if(pv0 < boost::get<int>(*params[1])) {
-				return std::make_shared<Val>("T");
+	if(params[0]->Is<int>()) {
+		int pv0 = params[0]->Get<int>();
+		if(params[1]->Is<int>()) {
+			if(pv0 < params[1]->Get<int>()) {
+				return std::make_shared<Val>(std::string("T"));
 			} else {
 				return std::make_shared<Val>(nil_t{});
 			}
-		} else if(params[1]->type() == typeid(float)) {
-			if(pv0 < boost::get<float>(*params[1])) {
-				return std::make_shared<Val>("T");
-			} else {
-				return std::make_shared<Val>(nil_t{});
-			}
-		} else {
-			throw Error("lt: the first param is a number but the second isn't");
-		}
-	} else if(params[0]->type() == typeid(float)) {
-		float pv0 = boost::get<float>(*params[0]);
-		if(params[1]->type() == typeid(int)) {
-			if(pv0 < boost::get<int>(*params[1])) {
-				return std::make_shared<Val>("T");
-			} else {
-				return std::make_shared<Val>(nil_t{});
-			}
-		} else if(params[1]->type() == typeid(float)) {
-			if(pv0 < boost::get<float>(*params[1])) {
-				return std::make_shared<Val>("T");
+		} else if(params[1]->Is<float>()) {
+			if(pv0 < params[1]->Get<float>()) {
+				return std::make_shared<Val>(std::string("T"));
 			} else {
 				return std::make_shared<Val>(nil_t{});
 			}
 		} else {
 			throw Error("lt: the first param is a number but the second isn't");
 		}
-	} else if(params[0]->type() == typeid(std::string) && params[1]->type() == typeid(std::string)) {
-		if(boost::get<std::string>(*params[0]) < boost::get<std::string>(*params[1]))
-			return std::make_shared<Val>("T");
+	} else if(params[0]->Is<float>()) {
+		float pv0 = params[0]->Get<float>();
+		if(params[1]->Is<int>()) {
+			if(pv0 < params[1]->Get<int>()) {
+				return std::make_shared<Val>(std::string("T"));
+			} else {
+				return std::make_shared<Val>(nil_t{});
+			}
+		} else if(params[1]->Is<float>()) {
+			if(pv0 < params[1]->Get<float>()) {
+				return std::make_shared<Val>(std::string("T"));
+			} else {
+				return std::make_shared<Val>(nil_t{});
+			}
+		} else {
+			throw Error("lt: the first param is a number but the second isn't");
+		}
+	} else if(params[0]->Is<std::string>() && params[1]->Is<std::string>()) {
+		if(params[0]->Get<std::string>() < params[1]->Get<std::string>())
+			return std::make_shared<Val>(std::string("T"));
 		return std::make_shared<Val>(nil_t{});
 	}
 	throw Error("lt: can't compare such two items");
@@ -226,8 +226,8 @@ ValPtr builtin_eval(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 1)
 		throw Error("eval: take exactly one param");
-	if(params[0]->type() == typeid(ast_t)) {
-		return eval(boost::get<ast_t>(*params[0]), true);
+	if(params[0]->Is<ast_t>()) {
+		return eval(params[0]->Get<ast_t>(), true);
 	} else {
 		return params[0];
 	}
@@ -236,13 +236,13 @@ ValPtr builtin_eval(const std::vector<ValPtr>& params)
 ValPtr builtin_load(const std::vector<ValPtr>& params)
 {
 	for(const ValPtr& v : params) {
-		if(v->type() != typeid(std::string)) {
+		if(!v->Is<std::string>()) {
 			std::cout << "WARNING: " << to_string(v) << " is unlikely to be a path name, skiped" << std::endl;
 			continue;
 		}
-		std::ifstream file(boost::get<std::string>(*v));
+		std::ifstream file(v->Get<std::string>());
 		if(!file) {
-			std::cout << "ERROR: open " << boost::get<std::string>(*v) << " failed" << std::endl;
+			std::cout << "ERROR: open " << v->Get<std::string>() << " failed" << std::endl;
 			continue;
 		}
 		Parser p;
@@ -255,10 +255,10 @@ template <typename R>
 R op_helper(char op, const std::vector<ValPtr>& params)
 {
 	R base = 0;
-	if(params[0]->type() == typeid(float)) {
-		base = boost::get<float>(*params[0]);
+	if(params[0]->Is<float>()) {
+		base = params[0]->Get<float>();
 	} else {
-		base = boost::get<int>(*params[0]);
+		base = params[0]->Get<int>();
 	}
 	std::function<R(R, R)> oper;
 	switch(op) {
@@ -268,10 +268,10 @@ R op_helper(char op, const std::vector<ValPtr>& params)
 		case '/': oper = [](auto p1, auto p2) { return p1 / p2; }; break;
 	}
 	for(size_t i = 1; i < params.size(); ++i) {
-		if(params[i]->type() == typeid(float)) {
-			base = oper(base, boost::get<float>(*params[i]));
+		if(params[i]->Is<float>()) {
+			base = oper(base, params[i]->Get<float>());
 		} else {
-			base = oper(base, boost::get<int>(*params[i]));
+			base = oper(base, params[i]->Get<int>());
 		}
 	}
 	return base;
@@ -283,11 +283,10 @@ ValPtr builtin_op(char op, const std::vector<ValPtr>& params)
 		throw Error("op: operation + - * / need at least one param");
 	bool float_flag = false;
 	for(const ValPtr& v : params) {
-		if(v->type() != typeid(int)) {
-			if(v->type() == typeid(float)) {
+		if(!v->Is<int>()) {
+			if(v->Is<float>()) {
 				float_flag = true;
 			} else {
-std::cout << "is " << to_string(v) << std::endl;
 				throw Error("op: all params should be number");
 			}
 		}
@@ -302,20 +301,20 @@ std::cout << "is " << to_string(v) << std::endl;
 ValPtr builtin_list(const std::vector<ValPtr>& params)
 {
 	ValPtr li = std::make_shared<Val>(ast_t{ast_tag::QEXPR});
-	ast_t& t = boost::get<ast_t>(*li);
+	ast_t& t = li->Get<ast_t>();
 	t.children.push_back(ast_t{ast_tag::EXPRS});
 	for(const ValPtr& v : params) {
-		if(v->type() == typeid(int)) {
+		if(v->Is<int>()) {
 			t.children[0].children.push_back(ast_t{ast_tag::INT});
-			t.children[0].children.back().value = std::to_string(boost::get<int>(*v));
-		} else if(v->type() == typeid(float)) {
+			t.children[0].children.back().value = std::to_string(v->Get<int>());
+		} else if(v->Is<float>()) {
 			t.children[0].children.push_back(ast_t{ast_tag::FLOAT});
-			t.children[0].children.back().value = std::to_string(boost::get<float>(*v));
-		} else if(v->type() == typeid(std::string)) {
+			t.children[0].children.back().value = std::to_string(v->Get<float>());
+		} else if(v->Is<std::string>()) {
 			t.children[0].children.push_back(ast_t{ast_tag::STRING});
-			t.children[0].children.back().value = "\"" + boost::get<std::string>(*v) + "\"";
-		} else if(v->type() == typeid(ast_t)) {
-			t.children[0].children.push_back(boost::get<ast_t>(*v));
+			t.children[0].children.back().value = "\"" + v->Get<std::string>() + "\"";
+		} else if(v->Is<ast_t>()) {
+			t.children[0].children.push_back(v->Get<ast_t>());
 		} else {
 		 	throw Error("list: " + to_string(v) + " has no value");
 		}
@@ -327,9 +326,9 @@ ValPtr builtin_first(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 1)
 		throw Error("first: need exactly one param");
-	if(params[0]->type() != typeid(ast_t))
+	if(!params[0]->Is<ast_t>())
 		throw Error("first: need list");
-	const ast_t& t = boost::get<ast_t>(*params[0]);
+	const ast_t& t = params[0]->Get<ast_t>();
 	if(t.children[0].children.size() == 0)
 		return std::make_shared<Val>(nil_t{});
 	return eval(t.children[0].children[0]);
@@ -339,9 +338,9 @@ ValPtr builtin_rest(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 1)
 		throw Error("rest: need exactly one param");
-	if(params[0]->type() != typeid(ast_t))
+	if(!params[0]->Is<ast_t>())
 		throw Error("rest: need qexpr");
-	const ast_t& t = boost::get<ast_t>(*params[0]);
+	const ast_t& t = params[0]->Get<ast_t>();
 	if(t.children[0].children.size() == 0)
 		return std::make_shared<Val>(nil_t{});
 	ast_t tr = t;
@@ -353,15 +352,15 @@ ValPtr builtin_if(const std::vector<ValPtr>& params)
 {
 	if(params.size() < 2 || params.size() > 3)
 		throw Error("if: need 2 or 3 params");
-	if(params[0]->type() != typeid(nil_t)) {
-		if(params[1]->type() == typeid(ast_t)) {
-			return eval(boost::get<ast_t>(*params[1]), true);
+	if(!params[0]->Is<nil_t>()) {
+		if(params[1]->Is<ast_t>()) {
+			return eval(params[1]->Get<ast_t>(), true);
 		} else {
 			return params[1];
 		}
 	} else if(params.size() == 3) {
-		if(params[2]->type() == typeid(ast_t)) {
-			return eval(boost::get<ast_t>(*params[2]), true);
+		if(params[2]->Is<ast_t>()) {
+			return eval(params[2]->Get<ast_t>(), true);
 		} else {
 			return params[2];
 		}
@@ -382,32 +381,33 @@ ValPtr builtin_append(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 2) 
 		throw Error("append: need exactly two params");
-	if(params[0]->type() != typeid(ast_t))
+	if(!params[0]->Is<ast_t>())
 		throw Error("append: usage: append {list} val");
-	ast_t t = boost::get<ast_t>(*params[0]);
-	if(params[1]->type() == typeid(int)) {
+	ast_t t = params[0]->Get<ast_t>();
+	if(params[1]->Is<int>()) {
 		t.children[0].children.push_back(ast_t{ast_tag::INT});
-		t.children[0].children.back().value = std::to_string(boost::get<int>(*params[1]));
-	} else if(params[1]->type() == typeid(float)) {
+		t.children[0].children.back().value = std::to_string(params[1]->Get<int>());
+	} else if(params[1]->Is<float>()) {
 		t.children[0].children.push_back(ast_t{ast_tag::FLOAT});
-		t.children[0].children.back().value = std::to_string(boost::get<float>(*params[1]));
-	} else if(params[1]->type() == typeid(std::string)) {
+		t.children[0].children.back().value = std::to_string(params[1]->Get<float>());
+	} else if(params[1]->Is<std::string>()) {
 		t.children[0].children.push_back(ast_t{ast_tag::STRING});
-		t.children[0].children.back().value = "\"" + boost::get<std::string>(*params[1]) + "\"";
-	} else if(params[1]->type() == typeid(ast_t)) {
-		t.children[0].children.push_back(boost::get<ast_t>(*params[1]));
+		t.children[0].children.back().value = "\"" + params[1]->Get<std::string>() + "\"";
+	} else if(params[1]->Is<ast_t>()) {
+		t.children[0].children.push_back(params[1]->Get<ast_t>());
 	} else {
 	 	throw Error("list: " + to_string(params[1]) + " has no value");
 	}
 	return std::make_shared<Val>(t);
 }
 
-ValPtr builtin_type(const std::type_index& type, const std::vector<ValPtr>& params)
+template <typename Type>
+ValPtr builtin_type(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 1)
 		throw Error("type detector need exactly one param");
-	if(type == params[0]->type())
-		return std::make_shared<Val>("T");
+	if(params[0]->Is<Type>())
+		return std::make_shared<Val>(std::string("T"));
 	return std::make_shared<Val>(nil_t{});
 }
 
@@ -437,13 +437,23 @@ std::unordered_map<std::string, Buildin::operator_t> Buildin::builtin_table =
 	{ "if", builtin_if },
 	{ "as", builtin_assign },
 	{ "append", builtin_append },
-	{ "is_nil", std::bind(builtin_type, std::ref(typeid(nil_t)), std::placeholders::_1)},
-	{ "is_int", std::bind(builtin_type, std::ref(typeid(int)), std::placeholders::_1)},
-	{ "is_float", std::bind(builtin_type, std::ref(typeid(float)), std::placeholders::_1)},
-	{ "is_string", std::bind(builtin_type, std::ref(typeid(std::string)), std::placeholders::_1)},
-	{ "is_list", std::bind(builtin_type, std::ref(typeid(ast_t)), std::placeholders::_1)},
-	{ "is_lambda", std::bind(builtin_type, std::ref(typeid(Lambda)), std::placeholders::_1)},
-	{ "is_builtin", std::bind(builtin_type, std::ref(typeid(Buildin)), std::placeholders::_1)},
+	{ "is_nil", builtin_type<nil_t> },
+	{ "is_int", builtin_type<int> },
+	{ "is_float", builtin_type<float> },
+	{ "is_string", builtin_type<std::string> },
+	{ "is_list", builtin_type<ast_t> },
+	{ "is_lambda", builtin_type<Lambda> },
+	{ "is_builtin", builtin_type<Buildin> },
 	{ "exit", builtin_exit },
 	{ "native", builtin_native }
 };
+	
+ValPtr Buildin::apply(const std::vector<ValPtr>& params) 
+{
+	if(oper) {
+		return (*oper)(params);
+	} else if(oper_ptr) {
+		return (*oper_ptr)(params);
+	}
+	assert(false && "invalid builtin");
+}

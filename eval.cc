@@ -1,5 +1,5 @@
 #include "lispy.hh"
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast.hpp"
 
 namespace {
 
@@ -36,10 +36,10 @@ ValPtr eval_exprs(const ast_t& tree)
 		params.push_back(eval(tree.children[i]));
 
 	ValPtr func = eval(tree.children[0]);
-	if(func->type() == typeid(Buildin)) {
-		return boost::get<Buildin>(*func).apply(params);
-	} else if(func->type() == typeid(Lambda)) {
-		return boost::get<Lambda>(*func).apply(params);
+	if(func->Is<Buildin>()) {
+		return func->Get<Buildin>().apply(params);
+	} else if(func->Is<Lambda>()) {
+		return func->Get<Lambda>().apply(params);
 	} else {
 		throw Error("EVAL: expect a function name, meet " + to_string(func));
 	}
@@ -54,9 +54,9 @@ ValPtr eval_expr(const ast_t& tree)
 {
 	switch(tree.children[0].tag) {
 		case ast_tag::INT:
-			return std::make_shared<Val>(boost::lexical_cast<int>(tree.children[0].value));
+			return std::make_shared<Val>(lexical_cast<int>(tree.children[0].value));
 		case ast_tag::FLOAT:
-			return std::make_shared<Val>(boost::lexical_cast<float>(tree.children[0].value));
+			return std::make_shared<Val>(lexical_cast<float>(tree.children[0].value));
 		case ast_tag::ID:
 			return eval_id(tree.children[0]);
 		case ast_tag::STRING:
@@ -114,9 +114,9 @@ ValPtr eval(const ast_t& tree, bool qexpr_as_sexpr)
 	try {
 		switch(tree.tag) {
 			case ast_tag::INT:
-				return std::make_shared<Val>(boost::lexical_cast<int>(tree.value));
+				return std::make_shared<Val>(lexical_cast<int>(tree.value));
 			case ast_tag::FLOAT:
-				return std::make_shared<Val>(boost::lexical_cast<float>(tree.value));
+				return std::make_shared<Val>(lexical_cast<float>(tree.value));
 			case ast_tag::ID:
 				return eval_id(tree);
 			case ast_tag::STRING:
