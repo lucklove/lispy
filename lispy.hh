@@ -2,7 +2,7 @@
 
 #include "val.hh"
 #include "lambda.hh"
-#include "buildin.hh"
+#include "builtin.hh"
 #include "any.hh"
 #include "ast.hh"
 #include "error.hh"
