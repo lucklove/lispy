@@ -2,6 +2,9 @@
 #ifdef __linux__
 #include <dlfcn.h>
 #endif
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 namespace {
 #ifdef __linux__
@@ -21,6 +24,27 @@ void *look_symbol(lib_handle_t handle, const std::string& symbol_name)
 	if(error)
 		throw Error(error);
 	return f;	
+}
+#endif
+#ifdef WIN32
+using lib_handle_t = HANDLE;
+lib_handle_t open_dynamic_lib(const std::string& lib_name)
+{
+	lib_handle_t h;
+	h = LoadLibrary(TEXT(lib_name.c_str()));
+	DWORD error = GetLastError();
+	if(error)
+		throw Error(error);
+	return h;
+}
+
+void *look_symbol(lib_handle_t handle, const std::string& symbol_name)
+{
+	void *f = GetProcAddress(handle, TEXT(symbol_name.c_str()));
+	DWORD error = GetLastError();
+	if(error)
+		throw Error(error);
+	return f;
 }
 #endif
 using lib_operator_ptr = void(*)(ValPtr&, const std::vector<ValPtr>& params);
