@@ -1,5 +1,3 @@
-#include "builtin.hh"
-
 #include "lispy.hh"
 #include <fstream>
 
