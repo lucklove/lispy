@@ -21,7 +21,7 @@ std::string to_string(const ValPtr& ptr)
 	} else if(ptr->type() == typeid(Buildin)) {
 		std::stringstream ss;
 		ss << reinterpret_cast<void *>(boost::get<Buildin>(*ptr).addr());
-		return "buildin@" + ss.str();
+		return "builtin@" + ss.str();
 	} else {
 		assert(0);
 	} 
