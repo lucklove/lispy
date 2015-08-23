@@ -22,7 +22,7 @@ bg=blue</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-
-A-Za-z_+-*/\=&lt;&gt;!&amp;</panel_attributes>
+A-Za-z_+*/\=&lt;&gt;!&amp;</panel_attributes>
     <additional_attributes>180.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
@@ -69,7 +69,7 @@ A-Za-z0-9_+-*/\=&lt;&gt;!&amp;</panel_attributes>
       <w>50</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>3.INT
+    <panel_attributes>4.INT
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -77,13 +77,13 @@ bg=blue</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>300</x>
-      <y>380</y>
-      <w>110</w>
-      <h>60</h>
+      <y>370</y>
+      <w>50</w>
+      <h>70</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-
 0-9</panel_attributes>
-    <additional_attributes>30.0;40.0;70.0;40.0;70.0;10.0;10.0;10.0;10.0;30.0</additional_attributes>
+    <additional_attributes>30.0;50.0;30.0;20.0;10.0;20.0;10.0;40.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -117,7 +117,7 @@ A-Za-z_+-*/\=&lt;&gt;!&amp;</panel_attributes>
       <w>50</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>4.FLOAT
+    <panel_attributes>5.FLOAT
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -165,7 +165,7 @@ A-Za-z_+-*/\=&lt;&gt;!&amp;</panel_attributes>
       <w>50</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>5
+    <panel_attributes>12
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -201,7 +201,7 @@ not " or \</panel_attributes>
       <w>50</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>7.STRING
+    <panel_attributes>13.STRING
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -225,7 +225,7 @@ bg=blue</panel_attributes>
       <w>50</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>6
+    <panel_attributes>14
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -261,7 +261,7 @@ any</panel_attributes>
       <w>50</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>8.comment
+    <panel_attributes>10.comment
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -297,7 +297,7 @@ not '\n'</panel_attributes>
       <w>50</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>9.swallow
+    <panel_attributes>11.swallow
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -357,7 +357,7 @@ bg=blue</panel_attributes>
       <w>40</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>10.RPAREN
+    <panel_attributes>9.RPAREN
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -369,7 +369,7 @@ bg=blue</panel_attributes>
       <w>40</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>11.LPAREN
+    <panel_attributes>8.LPAREN
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -381,7 +381,7 @@ bg=blue</panel_attributes>
       <w>40</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>13.RBRACE
+    <panel_attributes>7.RBRACE
 bg=blue</panel_attributes>
     <additional_attributes/>
   </element>
@@ -393,8 +393,68 @@ bg=blue</panel_attributes>
       <w>40</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>14.LBRACE
+    <panel_attributes>6.LBRACE
 bg=blue</panel_attributes>
     <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>310</x>
+      <y>310</y>
+      <w>100</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+-</panel_attributes>
+    <additional_attributes>71.0;70.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>380</x>
+      <y>370</y>
+      <w>40</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>3.ID
+bg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>390</x>
+      <y>310</y>
+      <w>150</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+A-Za-z_+-*/\=&lt;&gt;!&amp;</panel_attributes>
+    <additional_attributes>110.0;10.0;30.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>320</x>
+      <y>390</y>
+      <w>80</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+0-9</panel_attributes>
+    <additional_attributes>10.0;40.0;60.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>140</x>
+      <y>300</y>
+      <w>160</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+space</panel_attributes>
+    <additional_attributes>10.0;100.0;140.0;10.0</additional_attributes>
   </element>
 </diagram>

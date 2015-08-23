@@ -2,7 +2,7 @@
 #include <map>
 
 using namespace std;
-#define STATE_NUM 14
+#define STATE_NUM 15
 #define CASE_NUM 128
 
 using state_t = unsigned short;
@@ -33,32 +33,36 @@ int main()
 	for(char c : alpha_symbol) {
 		T(1, c, 2);
 		T(3, c, 2);
+		T(4, c, 2);
+		T(5, c, 2);
 	}
 	for(char c : alpha_number_symbol)
 		T(2, c, 2);
 	for(char c : number) {
-		T(1, c, 3);
-		T(3, c, 3);
+		T(1, c, 4);
+		T(3, c, 4);
 		T(4, c, 4);
-	}
-	T(3, '.', 4);
-	T(1, '"', 5);
-	for(unsigned char c = 0; c < CASE_NUM; ++c) {
 		T(5, c, 5);
-		T(6, c, 5);
-		T(8, c, 8);
 	}
-	T(5, '\\', 6);
-	T(5, '"', 7);
-	T(1, ';', 8);
-	T(8, '\n', 9);
-	T(1, ' ', 9);
-	T(1, '\t', 9);
-	T(1, '\n', 9);
-	T(1, ')', 10);
-	T(1, '(', 11);
-	T(1, '}', 12);
-	T(1, '{', 13);
+	for(unsigned char c = 0; c < CASE_NUM; ++c) {
+		T(10, c, 10);
+		T(12, c, 12);
+		T(14, c, 12);
+	}
+	T(1, '"', 12);
+	T(1, '-', 3);
+	T(1, ';', 10);
+	T(1, ' ', 11);
+	T(1, '\t', 11);
+	T(1, '\n', 11);
+	T(1, '{', 6);
+	T(1, '}', 7);
+	T(1, '(', 8);
+	T(1, ')', 9);
+	T(4, '.', 5);
+	T(12, '"', 13);
+	T(12, '\\', 14);
+	T(10, '\n', 11);
 
 	std::cout << "{" << std::endl;
 	for(size_t i = 0; i < STATE_NUM; ++i) {

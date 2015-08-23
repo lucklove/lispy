@@ -37,3 +37,7 @@
 ((native "./libnative_test.so" "test_func") 1 "hello" 2.0 {list} native)
 (set {f} (native "./libnative_test.so" "test_func"))
 (f "hello" "world")
+
+;mod test
+(mod 3 2)
+(mod -11 6)
