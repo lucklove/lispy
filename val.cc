@@ -4,23 +4,23 @@
 std::string to_string(const ValPtr& ptr)
 {
 	assert(ptr != nullptr);
-	if(ptr->type() == typeid(nil_t)) {
+	if(ptr->Is<nil_t>()) {
 		return "nil";
-	} else if(ptr->type() == typeid(int)) {
-		return std::to_string(boost::get<int>(*ptr));
-	} else if(ptr->type() == typeid(float)) {
-		return std::to_string(boost::get<float>(*ptr));
-	} else if(ptr->type() == typeid(std::string)) {
-		return boost::get<std::string>(*ptr);
-	} else if(ptr->type() == typeid(ast_t)) {
-		return boost::get<ast_t>(*ptr).to_string();
-	} else if(ptr->type() == typeid(Lambda)) {
+	} else if(ptr->Is<int>()) {
+		return std::to_string(ptr->Get<int>());
+	} else if(ptr->Is<float>()) {
+		return std::to_string(ptr->Get<float>());
+	} else if(ptr->Is<std::string>()) {
+		return ptr->Get<std::string>();
+	} else if(ptr->Is<ast_t>()) {
+		return ptr->Get<ast_t>().to_string();
+	} else if(ptr->Is<Lambda>()) {
 		std::stringstream ss;
 		ss << ptr;
 		return "lambda@" + ss.str();
-	} else if(ptr->type() == typeid(Buildin)) {
+	} else if(ptr->Is<Buildin>()) {
 		std::stringstream ss;
-		ss << reinterpret_cast<void *>(boost::get<Buildin>(*ptr).addr());
+		ss << reinterpret_cast<void *>(ptr->Get<Buildin>().addr());
 		return "builtin@" + ss.str();
 	} else {
 		assert(0);

@@ -2,7 +2,9 @@
 
 #include <unordered_map>
 #include <functional>
+#include <cassert>
 #include "val.hh"
+#include "lambda.hh"
 
 class Buildin {
 public:
@@ -17,30 +19,23 @@ public:
 			oper_ptr = &op->second;
 	}
 
-	Buildin(operator_t o) : oper(o) {}
+	Buildin(operator_t o) : oper(std::make_shared<operator_t>(o)) {}
 
 	operator bool() {
 		return oper || oper_ptr;
 	}
 
-	ValPtr apply(const std::vector<ValPtr>& params) {
-		if(oper) {
-			return oper(params);
-		} else if(oper_ptr) {
-			return (*oper_ptr)(params);
-		}
-		assert(false && "invalid builtin");
-	}
+	ValPtr apply(const std::vector<ValPtr>& params);
 
 	operator_ptr addr() {
 		if(oper) {
-			return &oper;
+			return oper.get();
 		} else if(oper_ptr) {
 			return oper_ptr;
 		}
 		assert(false && "invalid builtin");
 	}
 private:
-	operator_t oper{};
+	std::shared_ptr<operator_t> oper = nullptr;
 	operator_ptr oper_ptr = nullptr;
 };	
