@@ -55,16 +55,17 @@ private:
 	/*0*/	[this]{ error("stop on state 0"); },
 	/*1*/	[this]{ error("stop on state 1"); },
 	/*2*/	[this]{ message_bus_.send<Token, std::string>(Token::ID, token_, "token"); },
-	/*3*/	[this]{ message_bus_.send<Token, std::string>(Token::INT, token_, "token"); },
-	/*4*/	[this]{ message_bus_.send<Token, std::string>(Token::FLOAT, token_, "token"); },
-	/*5*/	[this]{ error("stop on state 5"); },
-	/*6*/	[this]{ error("stop on state 6"); },
-	/*7*/	[this]{ message_bus_.send<Token, std::string>(Token::STRING, token_, "token"); },
-	/*8*/	[this]{ /* nop */ },
-	/*9*/	[this]{ /* nop */ },
-	/*10*/	[this]{ message_bus_.send<Token, std::string>(Token::RPAREN, token_, "token"); },
-	/*11*/	[this]{ message_bus_.send<Token, std::string>(Token::LPAREN, token_, "token"); },
-	/*12*/	[this]{ message_bus_.send<Token, std::string>(Token::RBRACE, token_, "token"); },
-	/*13*/	[this]{ message_bus_.send<Token, std::string>(Token::LBRACE, token_, "token"); }
+	/*3*/	[this]{ message_bus_.send<Token, std::string>(Token::ID, token_, "token"); },
+	/*4*/	[this]{ message_bus_.send<Token, std::string>(Token::INT, token_, "token"); },
+	/*5*/	[this]{ message_bus_.send<Token, std::string>(Token::FLOAT, token_, "token"); },
+	/*6*/	[this]{ message_bus_.send<Token, std::string>(Token::LBRACE, token_, "token"); },
+	/*7*/	[this]{ message_bus_.send<Token, std::string>(Token::RBRACE, token_, "token"); },
+	/*8*/	[this]{ message_bus_.send<Token, std::string>(Token::LPAREN, token_, "token"); },
+	/*9*/	[this]{ message_bus_.send<Token, std::string>(Token::RPAREN, token_, "token"); },
+	/*10*/	[this]{ /* nop */ },
+	/*11*/	[this]{ /* nop */ },
+	/*12*/	[this]{ error("stop on state 12"); },
+	/*13*/	[this]{ message_bus_.send<Token, std::string>(Token::STRING, token_, "token"); },
+	/*14*/	[this]{ error("stop on state 14"); }
 	};
 };
