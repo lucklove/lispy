@@ -2,4 +2,4 @@
 
 #include "lispy.hh"
 
-ValPtr buildin_native(const std::vector<ValPtr>& params);
+ValPtr builtin_native(const std::vector<ValPtr>& params);

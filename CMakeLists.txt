@@ -12,7 +12,7 @@ SET(LISP_SRCS
 	eval.cc
 	symbol_table.cc
 	parser.cc
-	buildin.cc
+	builtin.cc
 	lambda.cc
 	val.cc
 	native.cc
