@@ -46,3 +46,5 @@
 					}
 				}
 			}}))(list lis1 lis2)}))
+
+(set {mod} (lambda {x y} {seq {{assert (and (is_int x) (is_int y)) "mod: need two interger"}{- x (* (/ x y) y)}}}))

@@ -9,7 +9,8 @@ private:
 public:
 	Syntax(MessageBus& mb) : message_bus_(mb) {
 		message_bus_.attach([this](Token t, std::string content) {
-/*			switch(t) {
+/*
+			switch(t) {
 				case Token::LPAREN:
 					std::cout << "LPAREN" << std::endl;
 					break;
@@ -35,7 +36,8 @@ public:
 					std::cout << "LBRACE" << std::endl;
 					break;
 			}
-			std::cout << "content: " << content << std::endl;*/
+			std::cout << "content: " << content << std::endl;
+*/
 			token_buf_.push(std::make_pair(t, content));
 		}, "token");
 		message_bus_.attach([this] {
