@@ -4,6 +4,7 @@
 #endif
 #ifdef WIN32
 #include <windows.h>
+typedef int (__cdecl *MYPROC)(LPWSTR);
 #endif
 
 namespace {
@@ -27,24 +28,24 @@ void *look_symbol(lib_handle_t handle, const std::string& symbol_name)
 }
 #endif
 #ifdef WIN32
-using lib_handle_t = HANDLE;
+typedef HMODULE lib_handle_t;
 lib_handle_t open_dynamic_lib(const std::string& lib_name)
 {
 	lib_handle_t h;
 	h = LoadLibrary(TEXT(lib_name.c_str()));
 	DWORD error = GetLastError();
-	if(error)
-		throw Error(error);
+	//if(error)
+	//	throw Error(error);
 	return h;
 }
 
 void *look_symbol(lib_handle_t handle, const std::string& symbol_name)
 {
-	void *f = GetProcAddress(handle, TEXT(symbol_name.c_str()));
+	MYPROC f = (MYPROC) GetProcAddress(handle, TEXT(symbol_name.c_str()));
 	DWORD error = GetLastError();
-	if(error)
-		throw Error(error);
-	return f;
+	//if(error)
+		//throw Error(error);
+	return (void *)f;
 }
 #endif
 using lib_operator_ptr = void(*)(ValPtr&, const std::vector<ValPtr>& params);
