@@ -4,31 +4,7 @@
 #include <iostream>
 #include <type_traits>
 #include <functional>
-using namespace std;
-
-template <typename T>
-struct Function_Traits
-	: public Function_Traits<decltype(&T::operator())>
-{};
-
-template <typename ClassType, typename ReturnType, typename... Args>
-struct Function_Traits<ReturnType(ClassType::*)(Args...) const>
-	// we specialize for pointers to member function
-{
-	enum { arity = sizeof...(Args) };
-	// arity is the number of arguments.
-
-	typedef ReturnType result_type;
-
-	template <size_t i>
-	struct arg
-	{
-		typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
-	};
-
-	typedef std::function<ReturnType(Args...)> FunType;
-	typedef std::tuple<Args...> ArgTupleType;
-};
+#include "function_traits.hh"
 
 //获取最大的整数
 template <size_t arg, size_t... rest>
@@ -154,21 +130,21 @@ public:
 			Destroy(m_typeIndex, &m_data);
 			typedef typename std::remove_reference<T>::type U;
 			new(&m_data) U(std::forward<T>(value));
-			m_typeIndex = type_index(typeid(U));
+			m_typeIndex = std::type_index(typeid(U));
 	}
 
 	template<typename T>
 	bool Is() const
 	{
-		return (m_typeIndex == type_index(typeid(T)));
+		return (m_typeIndex == std::type_index(typeid(T)));
 	}
 
 	bool Empty() const
 	{
-		return m_typeIndex == type_index(typeid(void));
+		return m_typeIndex == std::type_index(typeid(void));
 	}
 
-	type_index Type() const
+	std::type_index Type() const
 	{
 		return m_typeIndex;
 	}
@@ -179,8 +155,8 @@ public:
 		using U = typename std::decay<T>::type;
 		if (!Is<U>())
 		{
-			cout << typeid(U).name() << " is not defined. " << "current type is " <<
-				m_typeIndex.name() << endl;
+			std::cout << typeid(U).name() << " is not defined. " << "current type is " <<
+				m_typeIndex.name() << std::endl;
 			throw std::bad_cast();
 		}
 
@@ -196,7 +172,7 @@ public:
 	template<typename F>
 	void Visit(F&& f)
 	{
-		using T = typename Function_Traits<F>::template arg<0>::type;
+		using T = typename function_traits<F>::template arg<0>::type;
 		if (Is<T>())
 			f(Get<T>());
 	}
@@ -204,7 +180,7 @@ public:
 	template<typename F, typename... Rest>
 	void Visit(F&& f, Rest&&... rest)
 	{
-		using T = typename Function_Traits<F>::template arg<0>::type;
+		using T = typename function_traits<F>::template arg<0>::type;
 		if (Is<T>())
 			Visit(std::forward<F>(f));
 		else
@@ -222,39 +198,39 @@ public:
 	}
 
 private:
-	void Destroy(const type_index& index, void * buf)
+	void Destroy(const std::type_index& index, void * buf)
 	{
 		(void)std::initializer_list<int>{(Destroy0<Types>(index, buf), 0)...};
 	}
 
 	template<typename T>
-	void Destroy0(const type_index& id, void* data)
+	void Destroy0(const std::type_index& id, void* data)
 	{
-		if (id == type_index(typeid(T)))
+		if (id == std::type_index(typeid(T)))
 			reinterpret_cast<T*>(data)->~T();
 	}
 
-	void Move(const type_index& old_t, void* old_v, void* new_v) 
+	void Move(const std::type_index& old_t, void* old_v, void* new_v) 
 	{
 		(void)std::initializer_list<int>{(Move0<Types>(old_t, old_v, new_v), 0)...};
 	}
 
 	template<typename T>
-	void Move0(const type_index& old_t, void* old_v, void* new_v)
+	void Move0(const std::type_index& old_t, void* old_v, void* new_v)
 	{
-		if (old_t == type_index(typeid(T)))
+		if (old_t == std::type_index(typeid(T)))
 			new (new_v)T(std::move(*reinterpret_cast<T*>(old_v)));
 	}
 
-	void Copy(const type_index& old_t, void* old_v, void* new_v)
+	void Copy(const std::type_index& old_t, void* old_v, void* new_v)
 	{
 		(void)std::initializer_list<int>{(Copy0<Types>(old_t, old_v, new_v), 0)...};
 	}
 
 	template<typename T>
-	void Copy0(const type_index& old_t, void* old_v, void* new_v)
+	void Copy0(const std::type_index& old_t, void* old_v, void* new_v)
 	{
-		if (old_t == type_index(typeid(T)))
+		if (old_t == std::type_index(typeid(T)))
 			new (new_v)T(*reinterpret_cast<const T*>(old_v));
 	}
 private:

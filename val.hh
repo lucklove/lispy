@@ -2,7 +2,7 @@
 
 #include <string>
 #include <memory>
-#include "Variant.hpp"
+#include "variant.hh"
 #include "ast.hh"
 
 class Lambda;
