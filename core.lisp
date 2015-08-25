@@ -1,3 +1,11 @@
+(set {is_nil} (lambda {x} {is_same_type x ()}))
+(set {is_int} (lambda {x} {is_same_type x 0}))
+(set {is_float} (lambda {x} {is_same_type x 0.0}))
+(set {is_string} (lambda {x} {is_same_type x ""}))
+(set {is_list} (lambda {x} {is_same_type x {}}))
+(set {is_builtin} (lambda {x} {is_same_type x is_same_type}))
+(set {is_lambda} (lambda {x} {is_same_type x (lambda {} {})}))
+
 (set {not} (lambda {condition} {if condition () "T"}))		;取反操作
 (set {empty} (lambda {lis} {not (first lis)}))			;测试一个列表是否为空
 
@@ -19,7 +27,7 @@
 (set {xor} (lambda {cond1 cond2} {and (or cond1 cond2) (not (and cond1 cond2))}))	;异或
 
 (set {second} (lambda {lis} {if (rest lis) {first (rest lis)} ()}))			;列表中的第二个元素
-(set {assert} (lambda {condition msg} {if (not condition) {seq {{println msg} {exit}}}}))
+(set {assert} (lambda {condition msg} {if (not condition) {seq {{print msg "\n"} {exit}}}}))
 
 (set {loop} (lambda {condition body} {(Y (lambda {f} {					;循环
 			lambda {lis} {
@@ -48,3 +56,5 @@
 			}}))(list lis1 lis2)}))
 
 (set {mod} (lambda {x y} {seq {{assert (and (is_int x) (is_int y)) "mod: need two interger"}{- x (* (/ x y) y)}}}))
+
+(set {is_callable} (lambda {x} {or (is_builtin x) (is_lambda x)}))

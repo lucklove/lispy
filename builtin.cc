@@ -51,14 +51,6 @@ ValPtr builtin_print(const std::vector<ValPtr>& params) {
 	return std::make_shared<Val>(nil_t{});
 }
 
-/** println */
-ValPtr builtin_println(const std::vector<ValPtr>& params)
-{
-	builtin_print(params);
-	std::cout << std::endl;
-	return std::make_shared<Val>(nil_t{});
-}
-
 /** set */
 ValPtr builtin_set(const std::vector<ValPtr>& params)
 {
@@ -277,25 +269,38 @@ R op_helper(char op, const std::vector<ValPtr>& params)
 	return base;
 }
 
+template <>
+std::string op_helper(char op, const std::vector<ValPtr>& params)
+{
+	if(op != '+')
+		throw Error("op: only operator '+' can accept string as params");
+	std::string base{};
+	for(auto v : params)
+		base += to_string(v);
+	return base;
+}
+
 ValPtr builtin_op(char op, const std::vector<ValPtr>& params)
 {
 	if(params.size() == 0)
 		throw Error("op: operation + - * / need at least one param");
-	bool float_flag = false;
+	enum type_t { INT, FLOAT, ERROR } result_type = INT;
 	for(const ValPtr& v : params) {
 		if(!v->Is<int>()) {
-			if(v->Is<float>()) {
-				float_flag = true;
+			if(v->Is<float>() && result_type == INT) {
+				result_type = FLOAT;
+			} else if(v->Is<std::string>()) {
+				return std::make_shared<Val>(op_helper<std::string>(op, params));
 			} else {
-				throw Error("op: all params should be number");
+				result_type = ERROR;
 			}
 		}
 	}
-	if(float_flag) {
-		return std::make_shared<Val>(op_helper<float>(op, params));
-	} else {
-		return std::make_shared<Val>(op_helper<int>(op, params));
-	}	
+	switch(result_type) {
+		case INT: return std::make_shared<Val>(op_helper<int>(op, params));
+		case FLOAT: return std::make_shared<Val>(op_helper<float>(op, params));
+		case ERROR: throw Error("op: params' type not accept");
+	}
 }
 
 ValPtr builtin_list(const std::vector<ValPtr>& params)
@@ -326,26 +331,40 @@ ValPtr builtin_first(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 1)
 		throw Error("first: need exactly one param");
-	if(!params[0]->Is<ast_t>())
-		throw Error("first: need list");
-	const ast_t& t = params[0]->Get<ast_t>();
-	if(t.children[0].children.size() == 0)
-		return std::make_shared<Val>(nil_t{});
-	return eval(t.children[0].children[0]);
+	if(params[0]->Is<ast_t>()) {
+		const ast_t& t = params[0]->Get<ast_t>();
+		if(t.children[0].children.size() == 0)
+			return std::make_shared<Val>(nil_t{});
+		return eval(t.children[0].children[0]);
+	} else if(params[0]->Is<std::string>()) {
+		std::string content = params[0]->Get<std::string>();
+		if(content.size() == 0)
+			return std::make_shared<Val>(nil_t{});
+		return std::make_shared<Val>(content.substr(0, 1));
+	} else {
+		throw Error("first: need list or string");
+	}
 }
 
 ValPtr builtin_rest(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 1)
 		throw Error("rest: need exactly one param");
-	if(!params[0]->Is<ast_t>())
-		throw Error("rest: need qexpr");
-	const ast_t& t = params[0]->Get<ast_t>();
-	if(t.children[0].children.size() == 0)
-		return std::make_shared<Val>(nil_t{});
-	ast_t tr = t;
-	tr.children[0].children.erase(tr.children[0].children.begin());
-	return eval(tr);
+	if(params[0]->Is<ast_t>()) {
+		const ast_t& t = params[0]->Get<ast_t>();
+		if(t.children[0].children.size() == 0)
+			return std::make_shared<Val>(nil_t{});
+		ast_t tr = t;
+		tr.children[0].children.erase(tr.children[0].children.begin());
+		return eval(tr);
+	} else if(params[0]->Is<std::string>()) {
+		std::string content = params[0]->Get<std::string>();
+		if(content.size() == 0) 
+			return std::make_shared<Val>(nil_t{});
+		return std::make_shared<Val>(content.substr(1, content.size()));
+	} else {
+		throw Error("rest: need list or string");
+	}
 }
 
 ValPtr builtin_if(const std::vector<ValPtr>& params)
@@ -401,12 +420,11 @@ ValPtr builtin_append(const std::vector<ValPtr>& params)
 	return std::make_shared<Val>(t);
 }
 
-template <typename Type>
-ValPtr builtin_type(const std::vector<ValPtr>& params)
+ValPtr builtin_same_type(const std::vector<ValPtr>& params)
 {
-	if(params.size() != 1)
-		throw Error("type detector need exactly one param");
-	if(params[0]->Is<Type>())
+	if(params.size() != 2)
+		throw Error("type detector need exactly two param");
+	if(params[0]->Type() == params[1]->Type())
 		return std::make_shared<Val>(std::string("T"));
 	return std::make_shared<Val>(nil_t{});
 }
@@ -420,7 +438,6 @@ ValPtr builtin_exit(const std::vector<ValPtr>&)
 std::unordered_map<std::string, Buildin::operator_t> Buildin::builtin_table = 
 {
 	{ "print", builtin_print },
-	{ "println", builtin_println },
 	{ "set", builtin_set },
 	{ "let", builtin_let },
 	{ "lambda", builtin_lambda },
@@ -437,13 +454,7 @@ std::unordered_map<std::string, Buildin::operator_t> Buildin::builtin_table =
 	{ "if", builtin_if },
 	{ "as", builtin_assign },
 	{ "append", builtin_append },
-	{ "is_nil", builtin_type<nil_t> },
-	{ "is_int", builtin_type<int> },
-	{ "is_float", builtin_type<float> },
-	{ "is_string", builtin_type<std::string> },
-	{ "is_list", builtin_type<ast_t> },
-	{ "is_lambda", builtin_type<Lambda> },
-	{ "is_builtin", builtin_type<Buildin> },
+	{ "is_same_type", builtin_same_type },
 	{ "exit", builtin_exit },
 	{ "native", builtin_native }
 };

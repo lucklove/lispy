@@ -15,19 +15,19 @@
 		{1 2 3 4})
 
 ;logic and
-(if (and "T" "T") {println "and test1 passed"} {println "and test1 failed"})
-(if (and "T" ()) {println "and test2 failed"} {println "and test2 passed"})
-(if (and () "T") {println "and test3 failed"} {println "and test3 passed"})
-(if (and () ()) {println "and test4 failed"} {println "and test4 passed"})
+(if (and "T" "T") {print "and test1 passed\n"} {print "and test1 failed\n"})
+(if (and "T" ()) {print "and test2 failed\n"} {print "and test2 passed\n"})
+(if (and () "T") {print "and test3 failed\n"} {print "and test3 passed\n"})
+(if (and () ()) {print "and test4 failed\n"} {print "and test4 passed\n"})
 
 ;logic or
-(if (or () ()) {println "or test1 failed"} {println "or test1 passed"})
-(if (or "T" ()) {println "or test2 passed"} {println "or test2 failed"})
-(if (or () "T") {println "or test3 passed"} {println "or test3 failed"})
-(if (or "T" "T") {println "or test4 passed"} {println "or test4 failed"})
+(if (or () ()) {print "or test1 failed\n"} {print "or test1 passed\n"})
+(if (or "T" ()) {print "or test2 passed\n"} {print "or test2 failed\n"})
+(if (or () "T") {print "or test3 passed\n"} {print "or test3 failed\n"})
+(if (or "T" "T") {print "or test4 passed\n"} {print "or test4 failed\n"})
 
 ;loop test
-(let {(x 100)} {loop {not (= x 0)} {seq {{println x} {as x (- x 1)}}}})
+(let {(x 100)} {loop {not (= x 0)} {seq {{print x "\n"} {as x (- x 1)}}}})
 
 ;join test
 (join {1 2 3 4 5} {6 7 8 9 10})
