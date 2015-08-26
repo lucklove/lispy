@@ -214,15 +214,18 @@ ValPtr builtin_lt(const std::vector<ValPtr>& params)
 	throw Error("lt: can't compare such two items");
 }
 
+ValPtr eval_ptr(ValPtr ptr)
+{
+	if(ptr->Is<ast_t>())
+		return eval(ptr->Get<ast_t>(), true);
+	return ptr;
+}
+
 ValPtr builtin_eval(const std::vector<ValPtr>& params)
 {
 	if(params.size() != 1)
 		throw Error("eval: take exactly one param");
-	if(params[0]->Is<ast_t>()) {
-		return eval(params[0]->Get<ast_t>(), true);
-	} else {
-		return params[0];
-	}
+	return eval_ptr(params[0]);
 }
 
 ValPtr builtin_load(const std::vector<ValPtr>& params)
@@ -372,17 +375,9 @@ ValPtr builtin_if(const std::vector<ValPtr>& params)
 	if(params.size() < 2 || params.size() > 3)
 		throw Error("if: need 2 or 3 params");
 	if(!params[0]->Is<nil_t>()) {
-		if(params[1]->Is<ast_t>()) {
-			return eval(params[1]->Get<ast_t>(), true);
-		} else {
-			return params[1];
-		}
+		return eval_ptr(params[1]);
 	} else if(params.size() == 3) {
-		if(params[2]->Is<ast_t>()) {
-			return eval(params[2]->Get<ast_t>(), true);
-		} else {
-			return params[2];
-		}
+		return eval_ptr(params[2]);
 	} else {
 		return std::make_shared<Val>(nil_t{});
 	}
@@ -433,6 +428,16 @@ ValPtr builtin_exit(const std::vector<ValPtr>&)
 {
 	exit(0);
 }
+
+ValPtr builtin_loop(const std::vector<ValPtr>& params)
+{
+	if(params.size() != 2)
+		throw Error("loop: need exactly two params");
+	ValPtr last = std::make_shared<Val>(nil_t{});
+	while(!eval_ptr(params[0])->Is<nil_t>())
+		last = eval_ptr(params[1]);
+	return last;
+}
 }
 
 std::unordered_map<std::string, Buildin::operator_t> Buildin::builtin_table = 
@@ -456,7 +461,8 @@ std::unordered_map<std::string, Buildin::operator_t> Buildin::builtin_table =
 	{ "append", builtin_append },
 	{ "is_same_type", builtin_same_type },
 	{ "exit", builtin_exit },
-	{ "native", builtin_native }
+	{ "native", builtin_native },
+	{ "loop", builtin_loop }
 };
 	
 ValPtr Buildin::apply(const std::vector<ValPtr>& params) 

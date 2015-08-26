@@ -41,3 +41,15 @@
 ;mod test
 (mod 3 2)
 (mod -11 6)
+
+(print "\\")
+
+(print 1.0 "\t" 2 "\t" "hello" "\n")
+
+((Y (lambda {fib} {lambda {n} 
+			{if (= n 0) 
+				0 
+				{if (= n 1) 
+					1
+					{+ (fib (- n 1)) (fib (- n 2))}
+				}}})) 10)

@@ -29,13 +29,6 @@
 (set {second} (lambda {lis} {if (rest lis) {first (rest lis)} ()}))			;列表中的第二个元素
 (set {assert} (lambda {condition msg} {if (not condition) {seq {{print msg "\n"} {exit}}}}))
 
-(set {loop} (lambda {condition body} {(Y (lambda {f} {					;循环
-			lambda {lis} {
-				if (eval (first lis))
-				{seq {{eval (second lis)} {f lis}}}
-			}
-		})) (list condition body)}))
-
 (set {>} (lambda {v1 v2} {< v2 v1}))
 (set {=} (lambda {v1 v2} {and (not (< v1 v2)) (not (> v1 v2))}))
 (set {>=} (lambda {v1 v2} {not (< v1 v2)}))
