@@ -9,9 +9,8 @@
 (set {not} (lambda {condition} {if condition () "T"}))		;取反操作
 (set {empty} (lambda {lis} {not (first lis)}))			;测试一个列表是否为空
 
-(set {Y} (lambda {m} {(lambda {f} {f f})			;Y因子
-		(lambda {j}
-				{m (lambda {x} {(j j) x})})}))
+(set {Y} (lambda {m} {(lambda {f} {f f})			;Y-Combinator
+		(lambda {j} {m (lambda {x} {(j j) x})})}))
 
 (set {seq} (Y							;对列表中的每个表达式求值并返回最后一个值
 	(lambda {f}

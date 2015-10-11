@@ -8,25 +8,6 @@ typedef int (__cdecl *MYPROC)(LPWSTR);
 #endif
 
 namespace {
-#ifdef __linux__
-using lib_handle_t = void*;
-lib_handle_t open_dynamic_lib(const std::string& lib_name)
-{
-	lib_handle_t h = dlopen(lib_name.c_str(), RTLD_NOW);
-	char *error = dlerror();
-	if(error)
-		throw Error(error);
-	return h;
-}
-void *look_symbol(lib_handle_t handle, const std::string& symbol_name)
-{
-	void *f = dlsym(handle, symbol_name.c_str());
-	char *error = dlerror();
-	if(error)
-		throw Error(error);
-	return f;	
-}
-#endif
 #ifdef WIN32
 typedef HMODULE lib_handle_t;
 lib_handle_t open_dynamic_lib(const std::string& lib_name)
@@ -46,6 +27,24 @@ void *look_symbol(lib_handle_t handle, const std::string& symbol_name)
 	//if(error)
 		//throw Error(error);
 	return (void *)f;
+}
+#else
+using lib_handle_t = void*;
+lib_handle_t open_dynamic_lib(const std::string& lib_name)
+{
+	lib_handle_t h = dlopen(lib_name.c_str(), RTLD_NOW);
+	char *error = dlerror();
+	if(error)
+		throw Error(error);
+	return h;
+}
+void *look_symbol(lib_handle_t handle, const std::string& symbol_name)
+{
+	void *f = dlsym(handle, symbol_name.c_str());
+	char *error = dlerror();
+	if(error)
+		throw Error(error);
+	return f;	
 }
 #endif
 using lib_operator_ptr = void(*)(ValPtr&, const std::vector<ValPtr>& params);
